@@ -23,4 +23,5 @@ stdin.on('data', data => {
   }
   )};
 });
-process.on('exit', () => stdout.write('Goodbye!\n'));
+process.on('SIGINT', () => process.exit());
+process.on('exit', () => stdout.write('\nGoodbye!\n'));
