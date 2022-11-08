@@ -6,12 +6,12 @@ const styles = path.resolve(__dirname, 'styles');
 const bundle = fs.createWriteStream(path.resolve(__dirname, 'project-dist', 'bundle.css'));
 
 async () => {
-  const stylesArr = await fsPromises.readdir(styles, { withFileTypes: true });
-  stylesArr.forEach(style => {
-    const extName = path.extname(style.name)
-    if (style.isFile() && extName === '.css') {
-      let readableStream = fs.createReadStream(path.resolve(styles, style.name))
-      readableStream.pipe(bundle)
+  const arr = await fsPromises.readdir(styles, { withFileTypes: true });
+  arr.forEach(style => {
+    const ext = path.extname(style.name);
+    if (style.isFile() && ext === '.css') {
+      let compiler = fs.createReadStream(path.resolve(styles, style.name));
+      compiler.pipe(bundle);
     }
   });
 }
