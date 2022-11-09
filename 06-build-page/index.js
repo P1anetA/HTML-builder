@@ -3,6 +3,7 @@ const path = require('path');
 
 const pathToStyles = path.resolve(__dirname, 'styles');
 const pathToAssets = path.join(__dirname, 'assets');
+const pathToTemplate = path.join(__dirname, 'template.html');
 const pathToComponents = path.join(__dirname, 'components');
 const pathToResult = path.join(__dirname, 'project-dist');
 const pathToResultAssets = path.join(pathToResult, 'assets');
@@ -55,30 +56,23 @@ styleCompiler();
 
 const createHTML = async () => {
   try {
-    const templateFile = await fs.promises.readFile(
-      path.join(__dirname, 'template.html')
-    );
-    let templateContent = templateFile.toString();
-    const componentsFiles = await fs.promises.readdir(pathToComponents,
-      { withFileTypes: true });
+    const file = await fs.promises.readFile(pathToTemplate);
+    let fileContent = file.toString();
+    const componentsFiles = await fs.promises.readdir(pathToComponents, { withFileTypes: true });
+    let arr = componentsFiles.map((file) => file.name);
 
-    let componentsFilesForTemplate = componentsFiles.map((file) => file.name).filter( (name) =>
-        templateContent.includes(`{{${name.replace('.html', '')}}}`)
-      );
-
-    for await (const component of componentsFilesForTemplate) {
-      const componentName = component.replace('.html', '');
-      const componentFile = await fs.promises.readFile(
-        path.join(pathToComponents, component)
-      );
-      templateContent = templateContent.replace(
-        `{{${componentName}}}`,
-        componentFile.toString()
+    arr.filter((name) => fileContent.includes(`{{${name.replace('.html', '')}}}`));
+    for await (const el of arr) {
+      const elTitle = el.replace('.html', '');
+      const elContent = await fs.promises.readFile(path.join(pathToComponents, el));
+      fileContent = fileContent.replace(
+        `{{${elTitle}}}`,
+        elContent.toString()
       );
     }
     await fs.promises.writeFile(
       path.join(pathToResult, 'index.html'),
-      templateContent
+      fileContent
     );
   } catch (err) {
     console.log(err);
